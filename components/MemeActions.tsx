@@ -60,17 +60,17 @@ export const MemeActions: React.FC<MemeActionsProps> = ({
     
     return (
         <div className="w-full space-y-4">
-            <div className="flex items-center justify-between bg-cream/60 p-2 rounded-lg">
-                <div className="flex items-center space-x-2">
+            <div className="flex items-center justify-between bg-neutral-100 dark:bg-black/20 p-2 rounded-lg">
+                <div className="flex items-center space-x-1 sm:space-x-2">
                     {EMOJI_REACTIONS.map(emoji => (
                         <button 
                             key={emoji}
                             onClick={() => onReact(emoji)}
-                            className={`px-3 py-1 rounded-full transition-all duration-200 text-xl flex items-center space-x-1 ${userReaction === emoji ? 'bg-dark-tan text-white scale-110' : 'bg-cream hover:bg-dark-tan/20'}`}
+                            className={`px-3 py-1.5 rounded-full transition-all duration-200 text-xl flex items-center space-x-2 ${userReaction === emoji ? 'bg-google-blue text-white scale-110 shadow' : 'bg-white dark:bg-gray-700 hover:bg-neutral-200 dark:hover:bg-gray-600'}`}
                             aria-label={`React with ${emoji}`}
                         >
                            <span>{emoji}</span>
-                           <span className="text-sm font-bold">{reactions[emoji]}</span>
+                           <span className="text-sm font-bold text-gray-700 dark:text-dark-text-primary">{reactions[emoji]}</span>
                         </button>
                     ))}
                 </div>
@@ -79,21 +79,21 @@ export const MemeActions: React.FC<MemeActionsProps> = ({
                      <button
                         onClick={handleShare}
                         disabled={isSharing}
-                        className="flex items-center justify-center p-2 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-light-tan focus:ring-blue-500 transition-all duration-200 disabled:bg-gray-400"
+                        className="flex items-center justify-center p-2.5 bg-google-blue text-white font-semibold rounded-full shadow-sm hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-100 dark:focus:ring-offset-dark-card focus:ring-google-blue transition-all duration-200 disabled:bg-gray-400"
                         aria-label="Share meme"
                     >
                         <ShareIcon className="w-5 h-5" />
                     </button>
                     <button
                         onClick={onDownload}
-                        className="flex items-center justify-center p-2 bg-green-600 text-white font-semibold rounded-full shadow-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-light-tan focus:ring-green-500 transition-all duration-200"
+                        className="flex items-center justify-center p-2.5 bg-google-green text-white font-semibold rounded-full shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-100 dark:focus:ring-offset-dark-card focus:ring-google-green transition-all duration-200"
                          aria-label="Download meme"
                     >
                         <DownloadIcon className="w-5 h-5" />
                     </button>
                 </div>
             </div>
-            {shareError && <p className="text-xs text-red-500 text-center">{shareError}</p>}
+            {shareError && <p className="text-xs text-google-red text-center">{shareError}</p>}
 
             <form onSubmit={handleCommentSubmit} className="flex items-center space-x-2">
                 <input 
@@ -101,9 +101,9 @@ export const MemeActions: React.FC<MemeActionsProps> = ({
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     placeholder="Add a witty comment..."
-                    className="flex-grow p-2 bg-cream border-2 border-dark-tan/40 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 placeholder-gray-500"
+                    className="flex-grow p-2.5 bg-white dark:bg-dark-bg border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-google-blue focus:border-google-blue transition-colors duration-200 placeholder-gray-500 dark:placeholder-dark-text-secondary dark:text-white"
                 />
-                <button type="submit" className="px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 disabled:bg-gray-400" disabled={!commentText.trim()}>
+                <button type="submit" className="px-5 py-2.5 bg-google-blue text-white font-semibold rounded-lg hover:bg-blue-500 disabled:bg-gray-400 shadow hover:shadow-lg transition-all" disabled={!commentText.trim()}>
                     Post
                 </button>
             </form>

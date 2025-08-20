@@ -1,0 +1,155 @@
+import React, { useState, useCallback } from 'react';
+import type { Meme } from '../types';
+import { generateMemeFromTemplate } from '../services/geminiService';
+import { SparklesIcon } from './icons/SparklesIcon';
+import { Spinner } from './Spinner';
+import { MemeDisplay } from './MemeDisplay';
+import { FileTextIcon } from './icons/FileTextIcon';
+
+interface CreateMemeViewProps {
+  onMemeCreated: (newMeme: Meme) => void;
+  onCancel: () => void;
+}
+
+export const CreateMemeView: React.FC<CreateMemeViewProps> = ({ onMemeCreated, onCancel }) => {
+  const [articleText, setArticleText] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [generatedMeme, setGeneratedMeme] = useState<Meme | null>(null);
+  const [isRefining, setIsRefining] = useState(false);
+
+  const handleGenerate = useCallback(async () => {
+    if (!articleText.trim()) return;
+
+    setIsGenerating(true);
+    setError(null);
+    try {
+      const memeData = await generateMemeFromTemplate(articleText);
+      const newMeme: Meme = {
+        id: `new-${Date.now()}`,
+        imageUrl: memeData.imageUrl,
+        topText: memeData.topText,
+        bottomText: memeData.bottomText,
+        sourceUrl: 'Custom User Input',
+        reactions: { '👍': 0, '❤️': 0, '😂': 0 },
+        comments: [],
+        userReaction: null,
+        isApproved: false,
+      };
+      setGeneratedMeme(newMeme);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to generate meme. Please try a different text or try again later.');
+    } finally {
+      setIsGenerating(false);
+    }
+  }, [articleText]);
+  
+  const handleRefine = useCallback(async (prompt: string) => {
+    if (!generatedMeme) return;
+
+    setIsRefining(true);
+    setError(null);
+    try {
+        const refinedMemeData = await generateMemeFromTemplate(articleText, prompt);
+        setGeneratedMeme({
+            ...generatedMeme,
+            imageUrl: refinedMemeData.imageUrl,
+            topText: refinedMemeData.topText,
+            bottomText: refinedMemeData.bottomText,
+        });
+    } catch (err) {
+        console.error(err);
+        setError('Failed to refine meme. The AI might be pondering harder. Please try again.');
+    } finally {
+        setIsRefining(false);
+    }
+
+  }, [generatedMeme, articleText]);
+
+  const handleApprove = useCallback(() => {
+    if (generatedMeme) {
+      onMemeCreated({ ...generatedMeme, isApproved: true });
+    }
+  }, [generatedMeme, onMemeCreated]);
+
+  return (
+    <div className="w-full flex flex-col items-center animate-fade-in space-y-8">
+        <div className="w-full flex justify-start">
+            <button onClick={onCancel} className="text-google-blue hover:text-blue-500 font-semibold transition-colors text-sm flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+                Back to Feed
+            </button>
+        </div>
+        
+        {generatedMeme ? (
+             <MemeDisplay
+                meme={generatedMeme}
+                isAdminView={true}
+                isRefining={isRefining}
+                onApprove={handleApprove}
+                onReact={() => {}} // No-op on creation screen
+                onComment={() => {}} // No-op on creation screen
+                onRefine={handleRefine}
+              />
+        ) : (
+            <div className="w-full flex flex-col items-center justify-center bg-white dark:bg-dark-card rounded-xl shadow-xl p-8 text-center min-h-[400px]">
+                 <div className="p-4 bg-neutral-100 dark:bg-black/20 rounded-full mb-4">
+                    <FileTextIcon className="w-12 h-12 text-google-blue" />
+                 </div>
+                 <h2 className="text-2xl font-bold text-gray-800 dark:text-dark-text-primary">Create a New Meme</h2>
+                 <p className="text-gray-500 dark:text-dark-text-secondary mt-2 max-w-sm">Your AI-generated masterpiece will appear here after you provide some text below.</p>
+                 {error && <p className="text-google-red mt-4 font-semibold">{error}</p>}
+            </div>
+        )}
+
+      <div className="w-full p-6 bg-white dark:bg-dark-card rounded-xl shadow-xl">
+        <label htmlFor="article-input" className="block text-lg font-bold text-gray-800 dark:text-dark-text-primary mb-2">
+            1. Enter Your Text
+        </label>
+        <p className="text-sm text-gray-600 dark:text-dark-text-secondary mb-4">
+            Paste in a corporate email, a team update, or just a funny thought, and let the AI find the humor.
+        </p>
+        <textarea
+          id="article-input"
+          rows={8}
+          value={articleText}
+          onChange={(e) => setArticleText(e.target.value)}
+          placeholder="Subject: Exciting New Synergy Paradigms..."
+          className="w-full p-3 bg-neutral-100 dark:bg-dark-bg border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-google-blue focus:border-google-blue transition-colors duration-200 placeholder-gray-500 dark:placeholder-dark-text-secondary dark:text-white"
+          disabled={isGenerating}
+        />
+         <label htmlFor="article-input" className="block text-lg font-bold text-gray-800 dark:text-dark-text-primary mb-2 mt-6">
+            2. Generate!
+        </label>
+        <button
+          onClick={handleGenerate}
+          disabled={isGenerating || !articleText.trim()}
+          className="mt-2 w-full flex items-center justify-center px-6 py-3 bg-google-blue text-white font-semibold rounded-lg shadow-md hover:bg-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:shadow-none hover:shadow-lg hover:shadow-google-blue/40"
+        >
+          {isGenerating ? (
+            <>
+              <Spinner />
+              <span className="ml-3">Generating...</span>
+            </>
+          ) : (
+            <>
+              <SparklesIcon className="w-6 h-6 mr-2" />
+              Generate Meme
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const FileTextIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+    </svg>
+);

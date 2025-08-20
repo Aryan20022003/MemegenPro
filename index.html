@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Anton&display=swap" rel="stylesheet">
   <script>
     tailwind.config = {
+      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: {
@@ -18,10 +19,17 @@
             meme: ['Anton', 'sans-serif'],
           },
           colors: {
-            'light-blue': '#BBDCE5',
-            'cream': '#ECEEDF',
-            'light-tan': '#D9C4B0',
-            'dark-tan': '#CFAB8D',
+            'google-blue': '#4285F4',
+            'google-green': '#0F9D58',
+            'google-yellow': '#F4B400',
+            'google-red': '#DB4437',
+            'neutral-100': '#F8F9FA',
+            'neutral-200': '#E9ECEF',
+            'dark-bg': '#121212',
+            'dark-card': '#1E1E1E',
+            'dark-border': '#2F2F2F',
+            'dark-text-primary': '#E5E7EB',
+            'dark-text-secondary': '#9CA3AF',
           }
         },
       },
@@ -38,7 +46,7 @@
 }
 </script>
 </head>
-<body class="bg-cream text-gray-800 font-sans">
+<body class="bg-neutral-100 dark:bg-dark-bg text-gray-800 dark:text-dark-text-primary font-sans transition-colors duration-300">
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

@@ -132,28 +132,28 @@ export const MemeDisplay: React.FC<MemeDisplayProps> = ({
   }, [generateMemeBlob]);
 
   return (
-    <div className="bg-light-tan/80 border-2 border-dashed border-dark-tan/30 rounded-lg w-full flex flex-col items-center p-4 shadow-md">
+    <div className="bg-white dark:bg-dark-card rounded-xl w-full flex flex-col items-center p-4 sm:p-6 shadow-xl">
         <div className="flex flex-col items-center space-y-4 w-full">
-            <div ref={memeRef} className="relative w-full max-w-lg aspect-square overflow-hidden rounded-lg shadow-lg bg-gray-700">
+            <div ref={memeRef} className="relative w-full max-w-lg aspect-square overflow-hidden rounded-lg shadow-lg bg-gray-900">
                 <img ref={imageRef} src={meme.imageUrl} alt="Generated meme" className="w-full h-full object-contain" crossOrigin="anonymous"/>
                 {meme.topText && <p className="absolute top-4 left-1/2 -translate-x-1/2 w-[90%] font-meme text-4xl md:text-5xl text-white uppercase tracking-wide text-center" style={textStyles}>{meme.topText}</p>}
                 {meme.bottomText && <p className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[90%] font-meme text-4xl md:text-5xl text-white uppercase tracking-wide text-center" style={textStyles}>{meme.bottomText}</p>}
                 
                 {isAdminView && !meme.isApproved && (
-                    <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded-full shadow">
+                    <div className="absolute top-2 right-2 bg-google-yellow text-gray-900 text-xs font-bold px-3 py-1 rounded-full shadow">
                         Pending Approval
                     </div>
                 )}
             </div>
 
-            <div className="w-full max-w-lg text-xs text-center text-gray-600">
-                Inspired by: <a href={meme.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-indigo-600 transition-colors">{meme.sourceUrl}</a>
+            <div className="w-full max-w-lg text-xs text-center text-gray-500 dark:text-dark-text-secondary">
+                Inspired by: <a href={meme.sourceUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-google-blue transition-colors">{meme.sourceUrl}</a>
             </div>
             
             {isAdminView && !meme.isApproved && (
-                <div className="w-full max-w-lg space-y-3 p-3 bg-cream rounded-md border border-dark-tan/20">
+                <div className="w-full max-w-lg space-y-3 p-4 bg-neutral-100 dark:bg-black/20 rounded-lg border border-neutral-200 dark:border-dark-border">
                     <form onSubmit={handleRefineSubmit} className="space-y-2">
-                        <label htmlFor={`refine-${meme.id}`} className="block text-sm font-semibold text-gray-800">Refine This Meme</label>
+                        <label htmlFor={`refine-${meme.id}`} className="block text-sm font-semibold text-gray-800 dark:text-dark-text-primary">Refine This Meme</label>
                         <div className="flex items-center space-x-2">
                            <input
                             id={`refine-${meme.id}`}
@@ -162,9 +162,9 @@ export const MemeDisplay: React.FC<MemeDisplayProps> = ({
                             onChange={(e) => setRefinePrompt(e.target.value)}
                             placeholder="e.g., 'Make it about synergy'"
                             disabled={isRefining}
-                            className="flex-grow p-2 bg-white border-2 border-dark-tan/40 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors duration-200 placeholder-gray-500 disabled:bg-gray-200"
+                            className="flex-grow p-2 bg-white dark:bg-dark-bg border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-google-blue focus:border-google-blue transition-colors duration-200 placeholder-gray-500 dark:placeholder-dark-text-secondary dark:text-white disabled:bg-gray-200 dark:disabled:bg-gray-800"
                            />
-                           <button type="submit" disabled={isRefining || !refinePrompt.trim()} className="flex items-center justify-center w-24 px-4 py-2 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors">
+                           <button type="submit" disabled={isRefining || !refinePrompt.trim()} className="flex items-center justify-center w-28 px-4 py-2 bg-google-blue text-white font-semibold rounded-lg hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors shadow hover:shadow-lg">
                              {isRefining ? <Spinner /> : 'Refine'}
                            </button>
                         </div>
@@ -173,14 +173,14 @@ export const MemeDisplay: React.FC<MemeDisplayProps> = ({
                     <button
                         onClick={onApprove}
                         disabled={isRefining}
-                        className="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded-lg shadow-sm hover:bg-green-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-light-tan focus:ring-green-500 disabled:bg-gray-400"
+                        className="w-full py-2.5 px-4 bg-google-green text-white font-semibold rounded-lg shadow hover:shadow-lg hover:bg-green-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-neutral-100 dark:focus:ring-offset-black/20 focus:ring-google-green disabled:bg-gray-400"
                     >
                         Approve Meme
                     </button>
                 </div>
             )}
 
-            <div className="w-full max-w-lg">
+            <div className="w-full max-w-lg border-t border-neutral-200 dark:border-dark-border pt-4">
                 <MemeActions 
                     onDownload={downloadMeme}
                     generateMemeBlob={generateMemeBlob}
@@ -190,12 +190,12 @@ export const MemeDisplay: React.FC<MemeDisplayProps> = ({
                     onComment={onComment}
                 />
                 <div className="mt-6">
-                    <h3 className="text-lg font-semibold text-gray-700 mb-2">Comments ({meme.comments.length})</h3>
-                    <div className="space-y-3 max-h-40 overflow-y-auto pr-2">
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-dark-text-primary mb-2">Comments ({meme.comments.length})</h3>
+                    <div className="space-y-3 max-h-48 overflow-y-auto pr-2">
                         {meme.comments.length > 0 ? meme.comments.map((comment, index) => (
-                            <div key={index} className="bg-cream p-3 rounded-lg text-sm text-gray-800 shadow-inner">{comment}</div>
+                            <div key={index} className="bg-neutral-100 dark:bg-black/20 p-3 rounded-lg text-sm text-gray-800 dark:text-dark-text-primary">{comment}</div>
                         )) : (
-                            <p className="text-gray-500 text-sm">No comments yet. Be the first!</p>
+                            <p className="text-gray-500 dark:text-dark-text-secondary text-sm">No comments yet. Be the first!</p>
                         )}
                     </div>
                 </div>

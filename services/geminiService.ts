@@ -1,5 +1,7 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { GeneratedMemeData } from '../types';
+import { renderMemeOnCanvas, convertCanvasToDataUrl } from './imageService';
+import { INTERNAL_CONTENTS, InternalContent } from './content';
 
 if (!process.env.API_KEY) {
     throw new Error("API_KEY environment variable not set");
@@ -9,12 +11,15 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const MEME_TEMPLATES = [
     { id: 'distracted-boyfriend', name: 'Distracted Boyfriend', url: 'https://i.imgflip.com/1ur9b0.jpg' },
-    { id: 'drake-hotline-bling', name: 'Drake Hotline Bling', url: 'https://i.imgflip.com/30b1gx.jpg' },
-    { id: 'two-buttons', name: 'Two Buttons', url: 'https://i.imgflip.com/1g8my4.jpg' },
-    { id: 'woman-yelling-at-cat', name: 'Woman Yelling at a Cat', url: 'https://i.imgflip.com/3l60ph.jpg' },
-    { id: 'this-is-fine', name: 'This Is Fine', url: 'https://i.imgflip.com/1otk95.jpg' },
-    { id: 'expanding-brain', name: 'Expanding Brain', url: 'https://i.imgflip.com/1jwhww.jpg' },
-    { id: 'success-kid', name: 'Success Kid', url: 'https://i.imgflip.com/1b42wl.jpg' },
+    { id: 'recursive-astronaught', name: 'Recursive astronaught where one astronught looking towards earth and other standing back of him', url: 'https://api.memegen.link/images/astronaut.jpg' },
+    { id: 'diaster-girl-meme', name: 'Small Girl is looking toward buring house and smiling ', url: 'https://api.memegen.link/images/disastergirl.jpg' },
+    // { id: 'woman-yelling-at-cat', name: 'Woman Yelling at a Cat', url: 'https://i.imgflip.com/3l60ph.jpg' },
+    { id: 'ancient-alien-meme-temp', name: 'A guy explaining something', url: 'https://api.memegen.link/images/aag.jpg' },
+    { id: 'we_are_choosen_one', name: 'We are choosen one man is shouting and fire at backhttps://api.memegen.link/images/chosen.jpg', url: 'https://api.memegen.link/images/chosen.jpg' },
+    { id: 'its-doge', name: 'Depiction of a Shiba Inu with broken English captions broken english', url: 'https://api.memegen.link/images/doge.jpg' },
+    { id: 'this-is-fine', name: 'dog sitting in burning home depecting everthing is fine', url: 'https://api.memegen.link/images/fine.jpg' },
+    {id:'i-should-have-not-said-this',name:'Hagrit looking as if he should not have said this thing ',url:'https://api.memegen.link/images/hagrid.jpg'},
+    {id:'mini-keaonireif',name:'Mini version of keanoreif standing on stage',url:'https://api.memegen.link/images/mini-keanu.jpg'}
 ];
 
 export async function generateMemeFromTemplate(text: string, refinementPrompt?: string): Promise<GeneratedMemeData> {
@@ -22,7 +27,13 @@ export async function generateMemeFromTemplate(text: string, refinementPrompt?: 
     Analyze the following corporate text. Your goal is to create a funny, safe-for-work meme that boosts morale by finding humor in corporate life.
 
     First, choose the most appropriate meme template from the list below.
-    Second, write the text for the meme. Most memes have a top text and a bottom text. If a text area is not needed for the meme format (e.g., Success Kid usually only has one line), return an empty string for the unused text area.
+    Second, write the text for the meme. ALL memes have a top text and a bottom text. 
+    For top text : Generate a formal, technical, or corporate-jargon phrase from the document that 
+    sounds complex or official. 
+    For bottom text : According to the meme template which you have selected Create a simple, relatable, and lighthearted explanation 
+    or reaction or commnet of the top-line phrase. The tone should be positive and encouraging, aiming to make 
+    the concept accessible and interesting
+    Note : Make top and bottom text not more than 5 words each.
 
     Available Templates:
     ---
@@ -81,17 +92,29 @@ export async function generateMemeFromTemplate(text: string, refinementPrompt?: 
         throw new Error("Invalid response structure from AI.");
     }
 
-    const selectedTemplate = MEME_TEMPLATES.find(t => t.id === parsed.templateId);
+    let selectedTemplate = MEME_TEMPLATES.find(t => t.id === parsed.templateId);
 
     if (!selectedTemplate) {
         console.warn(`AI returned an invalid templateId: "${parsed.templateId}". Using a random template as a fallback.`);
-        const fallbackTemplate = MEME_TEMPLATES[Math.floor(Math.random() * MEME_TEMPLATES.length)];
-        return { topText: parsed.topText, bottomText: parsed.bottomText, imageUrl: fallbackTemplate.url };
+        selectedTemplate = MEME_TEMPLATES[Math.floor(Math.random() * MEME_TEMPLATES.length)];
     }
+    console.log(parsed);
+    const canvas = await renderMemeOnCanvas(selectedTemplate.url, parsed.topText, parsed.bottomText);
+    const finalImageUrl = await convertCanvasToDataUrl(canvas);
 
-    return { topText: parsed.topText, bottomText: parsed.bottomText, imageUrl: selectedTemplate.url };
+    return { imageUrl: finalImageUrl };
+
   } catch (e) {
-    console.error("Failed to parse AI response:", response.text, e);
-    throw new Error("Could not understand the AI's creative vision. Please try again.");
+    console.error("Failed to parse AI response or render meme:", response.text, e);
+    throw new Error("Could not understand the AI's creative vision or render the image. Please try again.");
   }
+}
+
+export async function fetchInternalContent(): Promise<InternalContent> {
+    // Simulate an API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Select a random piece of content from the imported array
+    const randomIndex = Math.floor(Math.random() * INTERNAL_CONTENTS.length);
+    return INTERNAL_CONTENTS[randomIndex];
 }

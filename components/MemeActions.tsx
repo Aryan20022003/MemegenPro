@@ -3,8 +3,8 @@ import { DownloadIcon } from './icons/DownloadIcon';
 import { ShareIcon } from './icons/ShareIcon';
 
 interface MemeActionsProps {
+    memeImageUrl: string;
     onDownload: () => void;
-    generateMemeBlob: () => Promise<Blob | null>;
     reactions: { [key: string]: number };
     userReaction: string | null;
     onReact: (emoji: string) => void;
@@ -14,7 +14,7 @@ interface MemeActionsProps {
 const EMOJI_REACTIONS = ['👍', '❤️', '😂'];
 
 export const MemeActions: React.FC<MemeActionsProps> = ({ 
-    onDownload, generateMemeBlob, reactions, userReaction, onReact, onComment 
+    memeImageUrl, onDownload, reactions, userReaction, onReact, onComment 
 }) => {
     const [isSharing, setIsSharing] = useState(false);
     const [commentText, setCommentText] = useState('');
@@ -28,25 +28,23 @@ export const MemeActions: React.FC<MemeActionsProps> = ({
         }
 
         setIsSharing(true);
-        const blob = await generateMemeBlob();
-        setIsSharing(false);
-
-        if (blob) {
-            const file = new File([blob], 'corporate-meme.png', { type: 'image/png' });
-            try {
-                await navigator.share({
-                    title: 'Corporate Meme',
-                    text: 'Check out this meme I made!',
-                    files: [file],
-                });
-            } catch (error) {
-                console.error('Error sharing:', error);
-                if ((error as Error).name !== 'AbortError') {
-                    setShareError("Could not share the meme.");
-                }
+        try {
+            const response = await fetch(memeImageUrl);
+            const blob = await response.blob();
+            const file = new File([blob], 'memepulse-meme.png', { type: 'image/png' });
+            
+            await navigator.share({
+                title: 'MemePulse Meme',
+                text: 'Check out this meme!',
+                files: [file],
+            });
+        } catch (error) {
+            console.error('Error sharing:', error);
+            if ((error as Error).name !== 'AbortError') {
+                setShareError("Could not share the meme.");
             }
-        } else {
-            setShareError("Could not generate meme image for sharing.");
+        } finally {
+            setIsSharing(false);
         }
     };
 
@@ -60,7 +58,7 @@ export const MemeActions: React.FC<MemeActionsProps> = ({
     
     return (
         <div className="w-full space-y-4">
-            <div className="flex items-center justify-between bg-neutral-100 dark:bg-black/20 p-2 rounded-lg">
+            <div className="flex items-center justify-between bg-white/20 dark:bg-black/20 backdrop-blur-sm p-2 rounded-lg">
                 <div className="flex items-center space-x-1 sm:space-x-2">
                     {EMOJI_REACTIONS.map(emoji => (
                         <button 
